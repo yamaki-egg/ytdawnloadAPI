@@ -2,6 +2,8 @@ from yt_dlp import YoutubeDL
 from tkinter import filedialog
 import tkinter as tk
 import os
+from tkinter import messagebox
+import threading
 import Settings
 #ラベルとエントリー
 class LabelEntry(tk.Frame):
@@ -26,7 +28,7 @@ class MainFrame(tk.Frame):
         self.storage_label=LabelEntry(self,"保存先")
         self.storage_label.pack()
         self.download_button=tk.Button(self,text="ダウンロード",command=self.Dawnload_Clicked)
-        self.download_button.pack()
+        self.download_button.pack(side=tk.RIGHT)
         
         self.storage_button=tk.Button(self,text="保存先を選択",command=self.Storege_Clicked)
         self.storage_button.pack()
@@ -36,7 +38,9 @@ class MainFrame(tk.Frame):
         
     def Dawnload_Clicked(self):
         self.yt_dlp.url=self.url_label.extract_text()
-        self.yt_dlp.download()
+        #YoutubeDLはasnycioに対応してないためthreadingで非同期処理
+        thread=threading.Thread(target=self.yt_dlp.download)
+        thread.start()
         self.url_label.entry.delete(0,tk.END)
     def Storege_Clicked(self):
         self.foler_path=filedialog.askdirectory()
@@ -55,6 +59,7 @@ class Yt_Download:
     def download(self):
         with YoutubeDL(self.option) as yd:
             yd.download(self.url)
+        messagebox.showinfo("Success","成功")
     
 
 
@@ -75,6 +80,6 @@ def main():
 if __name__=="__main__":
     main()
 
-#TODO:ダウンロード処理を非同期にする
+
 #TODO:クラスの分離
 
